@@ -1,0 +1,54 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "Skill(*)",
+      "Agent(*)",
+      "mcp__codegraph__*"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"from pathlib import Path; import os; root = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd()); p = Path(root) / '.review-trigger'; p.write_text('pending'); print('[AUTO-REVIEW] trigger set')\" 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"from pathlib import Path; import os; root = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd()); p = Path(root) / '.review-trigger'; p.unlink(missing_ok=True)\" 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"\nfrom pathlib import Path\nimport os\nroot = Path(os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd()))\nplans_dir = root / 'docs' / 'plans'\nreviews_dir = root / 'docs' / 'review'\npf = list(plans_dir.glob('*.md')) if plans_dir.exists() else []\nrf = list(reviews_dir.glob('*.md')) if reviews_dir.exists() else []\npending = []\nactive = []\nfor plan in pf:\n    sf = plan.with_suffix('.status')\n    if sf.exists():\n        s = sf.read_text().strip()\n        if s == 'in-progress':\n            active.append(plan.stem)\n    else:\n        pending.append(plan.stem)\nprint(f'[WORKFLOW] {len(pf)} plans ({len(pending)} pending, {len(active)} active) | {len(rf)} reviews')\nif pending:\n    for p in pending:\n        print(f'  PENDING: docs/plans/{p}.md')\nif active:\n    for p in active:\n        print(f'  ACTIVE: docs/plans/{p}.md')\n\" 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  },
+  "enableAllProjectMcpServers": true
+}

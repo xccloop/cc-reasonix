@@ -1,0 +1,20 @@
+{
+  "model": "deepseek-v4-pro",
+  "fallbackModel": "deepseek-v4-pro",
+  "editMode": "yolo",
+  "workspaceDir": "__WORKSPACE_ROOT__",
+  "permissions": {
+    "allow": [
+      "mcp__filesystem__*",
+      "mcp__codegraph__*",
+      "Skill(*)",
+      "run_skill",
+      "Agent(*)"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "mcp": [
+    "codegraph=codegraph serve --mcp --project __WORKSPACE_ROOT__",
+    "filesystem=__PYTHON__ __WORKSPACE_ROOT__/.reasonix/mcp-servers/filesystem/run.py"
+  ]
+}
