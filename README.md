@@ -1,6 +1,6 @@
 # CC-Reasonix
 
-Claude Code 审查 + Reasonix 执行，三阶段自动化工作流。实测缓存命中 85%，省 97% 实现成本。
+Claude Code 审查 + Reasonix 执行，三阶段自动化工作流。
 
 ## 快速开始
 
